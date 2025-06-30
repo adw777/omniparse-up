@@ -1,4 +1,8 @@
 from celery import Celery
+from omniparse import load_omnimodel
+
+
+load_omnimodel(load_documents=True, load_media= False, load_web=False)
 
 celery_app = Celery(
     "worker",
