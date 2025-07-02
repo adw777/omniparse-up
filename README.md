@@ -360,3 +360,7 @@ document = parser.load_data('path/to/document.pdf')
 parser.save_to_markdown(document)
 ```
  -->
+/home/wstf01/omniparse/Dockerfile
+/home/wstf01/omniparse/Dockerfile
+
+/home/wstf01/omniparse/server.py

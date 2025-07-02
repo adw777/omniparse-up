@@ -1,19 +1,22 @@
-ARG CUDA_VERSION="11.8.0"
-ARG CUDNN_VERSION="8"
+# ARG CUDA_VERSION="11.8.0"
+ARG CUDA_VERSION="12.4.1"
+ARG CUDNN_VERSION="9"
 ARG UBUNTU_VERSION="22.04"
 ARG MAX_JOBS=4
 
-FROM nvidia/cuda:$CUDA_VERSION-cudnn$CUDNN_VERSION-devel-ubuntu$UBUNTU_VERSION
+FROM nvidia/cuda:$CUDA_VERSION-cudnn-devel-ubuntu$UBUNTU_VERSION
 
 # Update package lists and install necessary packages
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
+    python3 python3-pip python3-dev \
     wget \
     curl \
     unzip \
     git \
     python3 \
     python3-pip \
+    python3-dev \   
     libgl1 \
     libglib2.0-0 \
     curl \
@@ -46,7 +49,9 @@ RUN CHROMEDRIVER_VERSION=$(curl -sS chromedriver.storage.googleapis.com/LATEST_R
 # COPY --from=builder /usr/local/bin/chromedriver /usr/local/bin/chromedriver
 
 # Install PyTorch and related packages
-RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+RUN pip3 install --no-cache-dir torch==2.6.0+cu124 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+
+# RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
 # Set up working directory and copy application code
 COPY . /app

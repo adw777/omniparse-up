@@ -1,0 +1,50 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.pyo
+*.pkl
+*.pth
+
+# Jupyter notebooks (if not needed in prod)
+*.ipynb
+
+# Virtual environments
+.env/
+.venv/
+env/
+venv/
+*.env
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Git files
+.git/
+.gitignore
+
+# Docker-related
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Python build artifacts
+build/
+dist/
+*.egg-info/
+
+# Test and temporary files
+tests/
+tmp/
+temp/
