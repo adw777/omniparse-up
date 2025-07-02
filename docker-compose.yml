@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  omniparse-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: omniparse-app
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: omniparse-worker
+    command: >
+      celery -A omniparse.task.celery_app worker
+      --concurrency=8
+      --pool=threads
+      --loglevel=info
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+    runtime: nvidia  # 🟡 Only if you use GPU in celery task (PyTorch)
+
+  redis:
+    image: redis:7.2
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"

@@ -29,6 +29,7 @@ from fastapi.responses import JSONResponse
 from omniparse import get_shared_state
 from fastapi import status
 import asyncio
+import logging
 
 # from omniparse.documents import parse_pdf , parse_ppt , parse_doc
 # from omniparse.documents import parse_pdf
@@ -39,6 +40,12 @@ from omniparse.models import responseDocument
 
 document_router = APIRouter()
 model_state = get_shared_state()
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
 
 
 # Document parsing endpoints
@@ -200,7 +207,7 @@ async def parse_doc_endpoint(file: UploadFile = File(...)):
 
 @document_router.post("")
 async def parse_any_endpoint(files: List[UploadFile] = File(...), callback_url: str = Form(...)):
-    print(len(files), "files coming")
+    logging.info(f"🔄 Received {len(files)} uploaded files.")
     all_file_data = []
     allowed_extensions = {".pdf", ".ppt", ".pptx", ".doc", ".docx"}
     
@@ -208,14 +215,21 @@ async def parse_any_endpoint(files: List[UploadFile] = File(...), callback_url: 
     for file in files:
         file_ext = os.path.splitext(file.filename)[1].lower()
         if file_ext not in allowed_extensions:
+            logging.warning(f"⚠️ Skipping unsupported file: {file.filename}")
             continue
 
         file_bytes = await file.read()
+        logging.info(f"✅ Queuing file for processing: {file.filename} ({len(file_bytes)} bytes)")
         all_file_data.append((file.filename, file_bytes, file_ext))
 
+    if not all_file_data:
+        return JSONResponse(
+            content={"message": "No valid files provided."},
+            status_code=status.HTTP_400_BAD_REQUEST
+        )
     # 🧠 Send all valid files to Celery in one task
     process_and_callback_task.delay(all_file_data, callback_url) # print(get_shared_state() ,".fff........................................")
-
+    logging.info("📤 Celery task dispatched with valid files.")
     # if file_ext.lower() not in allowed_extensions:
     #     return JSONResponse(
     #         content={"message": "Unsupported file type. Only PDF, PPT, DOCX allowed."},

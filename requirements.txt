@@ -33,3 +33,6 @@ art
 gradio
 nltk
 marker-pdf==0.2.16
+redis
+httpx
+time

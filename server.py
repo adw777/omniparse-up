@@ -12,6 +12,12 @@ from omniparse.demo import demo_ui
 
 # logging.basicConfig(level=logging.DEBUG)
 import gradio as gr
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
 
 warnings.filterwarnings(
     "ignore", category=UserWarning
@@ -81,7 +87,7 @@ def main():
     # Start the server
     import uvicorn
 
-    uvicorn.run("server:app", host=args.host, port=args.port, reload=args.reload)
+    uvicorn.run("server:app", host=args.host, port=args.port, reload=args.reload ,log_level="info")
 
 
 if __name__ == "__main__":
