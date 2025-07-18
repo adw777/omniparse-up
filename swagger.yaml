@@ -1,0 +1,33 @@
+openapi: 3.0.3
+info:
+  title: Document Parser API
+  version: 1.0.0
+  description: Upload files and receive parsed results via callback URL (webhook)
+paths:
+  /parse_document:
+    post:
+      summary: Upload document(s) for parsing
+      description: Accepts file uploads and posts the parsed result to the specified callback URL.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                callback_url:
+                  type: string
+                  format: uri
+              required:
+                - files
+                - callback_url
+      responses:
+        '200':
+          description: Upload accepted. Parsing will begin.
+        '400':
+          description: Invalid input

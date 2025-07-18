@@ -41,7 +41,7 @@ model_state = get_shared_state()
 #             logging.error(error_msg)
 #             results.append({
 #                 "status": "error",
-#                 "index": index,
+#                 "index": index,8012f06c4a: The read operation timed out
 #                 "error": str(e)
 #             })
 

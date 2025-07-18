@@ -21,6 +21,7 @@ import os
 import tempfile
 import subprocess
 import httpx
+from uuid import uuid4
 from typing import List
 
 # from omniparse.documents.parse import parse_single_pdf
@@ -208,6 +209,7 @@ async def parse_doc_endpoint(file: UploadFile = File(...)):
 @document_router.post("")
 async def parse_any_endpoint(files: List[UploadFile] = File(...), callback_url: str = Form(...)):
     logging.info(f"🔄 Received {len(files)} uploaded files.")
+    task_id = str(uuid4())  # Generate unique task ID
     all_file_data = []
     allowed_extensions = {".pdf", ".ppt", ".pptx", ".doc", ".docx"}
     
@@ -219,6 +221,33 @@ async def parse_any_endpoint(files: List[UploadFile] = File(...), callback_url: 
             continue
 
         file_bytes = await file.read()
+        
+        # # Get file size without reading into memory
+        # file.file.seek(0, os.SEEK_END)
+        # file_size = file.file.tell()
+        # file.file.seek(0)
+        # return 
+        # if file_size > MAX_SIZE_BYTES:
+            # logging.info(f"📷 Redirecting to parse_image for large file: {file.filename} ({file_size} bytes)")
+            # # Here you can call another function, enqueue a task, or return a different response
+            # # Example: call parse_image(file)
+            # images = pdf2image.convert_from_bytes(file_bytes, dpi=300, fmt="png")
+            # print(f"Converted to {len(images)} images")
+            # image_data_list = []
+            # for i, img in enumerate(images):
+            #     img_bytes = io.BytesIO()
+            #     img.save(img_bytes, format='PNG')
+            #     img_bytes.seek(0)
+                
+            #     image_data_list.append({
+            #         "page_number": i + 1,
+            #         "image_bytes": img_bytes,  # Still in BytesIO format
+            #         "filename": f"{file.filename}_page_{i + 1}.png"
+            #     })
+
+            #     print("✅ Image data list prepared")
+            #     return image_data_list            
+        
         logging.info(f"✅ Queuing file for processing: {file.filename} ({len(file_bytes)} bytes)")
         all_file_data.append((file.filename, file_bytes, file_ext))
 
@@ -228,7 +257,7 @@ async def parse_any_endpoint(files: List[UploadFile] = File(...), callback_url: 
             status_code=status.HTTP_400_BAD_REQUEST
         )
     # 🧠 Send all valid files to Celery in one task
-    process_and_callback_task.delay(all_file_data, callback_url) # print(get_shared_state() ,".fff........................................")
+    process_and_callback_task.delay(all_file_data, callback_url ,task_id) # print(get_shared_state() ,".fff........................................")
     logging.info("📤 Celery task dispatched with valid files.")
     # if file_ext.lower() not in allowed_extensions:
     #     return JSONResponse(
@@ -239,7 +268,7 @@ async def parse_any_endpoint(files: List[UploadFile] = File(...), callback_url: 
     # file_bytes = await file.read()
     # process_and_callback_task.delay(file_bytes, file_ext, callback_url)
 
-    return JSONResponse(content={"message": "Processing started."}, status_code=status.HTTP_202_ACCEPTED)
+    return JSONResponse(content={"message": "Processing started." ,"task_id":task_id}, status_code=status.HTTP_202_ACCEPTED)
 
 
 
